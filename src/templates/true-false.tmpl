@@ -1,0 +1,239 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>True False Reviewer</title>
+
+<style type="text/css">
+body {
+    height: 100%;
+    width: 100%;
+    background-color: darkgray;
+}
+
+.main-container {
+    top: 0px;
+    width: 922px;
+    margin: 0 auto;
+    background-color: white;
+}
+
+.button-container {
+    height: 50px;
+    width: 607px;
+    margin: 0px 30px 30px 30px;
+    /*background-color: yellow;*/
+}
+
+.btn {
+    -webkit-border-radius: 11;
+    -moz-border-radius: 11;
+    border-radius: 11px;
+    font-family: Arial;
+    color: #ffffff;
+    font-size: 15px;
+    background: #000000;
+    padding: 10px 20px 10px 20px;
+    margin-top: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.btn:hover {
+    background: #5d5c61;
+    text-decoration: none;
+}
+
+.subject-container {
+    height: 580px;
+    width: 892px;
+    margin: 0px 30px 30px 30px;
+    /*background-color: red;*/
+}
+
+.image {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 512;
+    height: 562px;
+}
+
+.ambiguous-container {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 227px;
+    height: 100px;
+    /*background-color: green;*/
+}
+
+.selection-container {
+    position: relative;
+    top: -608px;
+    left: 532px;
+    width: 350px;
+    height: 140px;
+    border: none;
+    /*background-color: yellow;*/
+}
+
+.selection-item {
+    background-color: black;
+    color: white;
+    font-family: Arial;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.selection-item-selected {
+    background-color: deepskyblue;
+    color: black;
+    font-family: Arial;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.selection-item:hover {
+    background: #5d5c61;
+    text-decoration: none;
+}
+
+.selection-input {
+    margin-left: 15px;
+    margin-right: 10px;
+}
+
+.text {
+    font-size: 14px;
+    font-family: Arial;
+}
+
+.stat {
+    font-size: 20px;
+    font-family: Arial;
+    margin-left: 280px;
+}
+</style>
+
+<script>
+(function() {
+    document.addEventListener('DOMContentLoaded', updateUI);
+})();
+
+function select(filename, annotation, subject_id, radio_id, shouldUpdateDB) {
+    var radio_buttons = document.getElementsByName(subject_id);
+
+    for (var i = 0; i < radio_buttons.length; i++) {
+        if (radio_buttons[i].id == radio_id) {
+            radio_buttons[i].checked = true;
+            radio_buttons[i].parentElement.parentElement.className = 'selection-item-selected';
+            if (shouldUpdateDB === true) {
+                updateDB(filename, annotation, subject_id, radio_id)
+            }
+        } else {
+            radio_buttons[i].checked = false;
+            radio_buttons[i].parentElement.parentElement.className = 'selection-item';
+        }
+    }
+}
+
+// localStorage data structure
+// {subject_id: [filename, annotation, radio_id]}
+function updateDB(filename, annotation, subject_id, radio_id) {
+    verify_webstorage();
+
+    // Don't need to check if subject_id already exists, setItem takes
+    // care of this issue automatically.
+    localStorage.setItem(subject_id, [filename, annotation, radio_id])
+}
+
+function verify_webstorage() {
+    if (typeof(Storage) === 'undefined') {
+        return alert('The browser does not support HTML5 web storage. ' +
+            'Please upgrade your browser to recent versions.')
+    }
+}
+
+function updateUI(action) {
+    var subject_ids = Object.keys(localStorage);
+    for (var i = 0; i < subject_ids.length; i++) {
+        var arr = localStorage.getItem(subject_ids[i]).split(',');
+        if (action === 'remove') {
+            select(arr[0], arr[1], subject_ids[i], '', false)
+        } else {
+            select(arr[0], arr[1], subject_ids[i], arr[2], false)
+        }
+    }
+}
+
+function resetAll() {
+    updateUI('remove');
+    localStorage.clear()
+}
+
+function exportCSV(out_file) {
+    var subject_ids = Object.keys(localStorage);
+    var csv_content = '';
+    for (var i = 0; i < subject_ids.length; i++) {
+        var arr = localStorage.getItem(subject_ids[i]).split(',');
+        var entry = subject_ids[i] + ',' + arr[0] + ',' + arr[1] + '\n';
+        csv_content += entry;
+    }
+
+    var blob = new Blob([csv_content], {type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    if (link.download !== undefined) {
+        var url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", out_file);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        return alert('Your browser does not support HTML5 download. Please ' +
+            'upgrade your browser to a recent version.');
+    }
+}
+</script>
+
+</head>
+<body onload="verify_webstorage()">
+<div class="main-container">
+    <div class="button-container">
+        <input class="btn" type="button" value="Export CSV" onclick="exportCSV('true-false.csv')"/>
+        <input class="btn" type="button" value="Reset all" onclick="resetAll()"/>
+        <b class="stat">Total: $total</b>
+    </div>
+#for $idx, $subject in enumerate($subjects)
+    #set subject_id = $subject.get_id()
+    #set filename = $subject.get_filename()
+
+    <div class="subject-container">
+        <p class="text">$filename</p>
+        <img class="image" src="$sub_dir/$filename"/>
+        <table class="selection-container">
+            <tr>
+                <td class="text">$question</td>
+            </tr>
+            <tr class="selection-item">
+                <td onclick="select('$filename', 'True', '$subject_id', 't_$idx', true)">
+                    <input type="radio" id="t_$idx" class="selection-input" name="$subject_id" value="True">True
+                </td>
+            </tr>
+            <tr class="selection-item">
+                <td onclick="select('$filename', 'False', '$subject_id', 'f_$idx', true)">
+                    <input type="radio" id="f_$idx" class="selection-input" name="$subject_id" value="False">False
+                </td>
+            </tr>
+        </table>
+    </div>
+    <hr>
+#end for
+
+</div>
+</body>
+</html>

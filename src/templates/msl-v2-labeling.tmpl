@@ -1,0 +1,867 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MSL v2 data labeling tool</title>
+
+    <style type="text/css">
+        body {
+            height: 100%;
+            width: 100%;
+            background-color: darkgray;
+            overflow-x: auto;
+        }
+
+        hr {
+            margin-block-start: 0em;
+            margin-block-end: 0em;
+        }
+
+        li {
+            font-size: 14px;
+        }
+
+        .main-container {
+            top: 0px;
+            width: 1160px;
+            margin: 0 auto;
+            background-color: white;
+        }
+
+        .button-container-top {
+            height: 50px;
+            width: 1100px;
+            margin: 0px 30px 30px 30px;
+        }
+
+        .button-container-bottom {
+            height: 80px;
+            width: 1100px;
+            margin: 0px 30px 30px 30px;
+        }
+
+        .btn {
+            -webkit-border-radius: 11;
+            -moz-border-radius: 11;
+            border-radius: 11px;
+            font-family: Arial;
+            color: #ffffff;
+            font-size: 15px;
+            background: #000000;
+            padding: 10px 20px 10px 20px;
+            margin-top: 20px;
+            text-decoration: none;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .btn:hover {
+            background: #5d5c61;
+            text-decoration: none;
+        }
+
+        .subject-container {
+            height: 360px;
+            width: 964px;
+            margin: 0px 30px 10px 30px;
+        }
+
+        .image {
+            position: relative;
+            top: 0px;
+            left: 0px;
+            width: 227px;
+            height: 227px;
+        }
+
+        .bottom-container {
+            position: relative;
+            height: 175px;
+        }
+
+        .reference-container {
+            position: absolute;
+            top: -110px;
+            left: 0px;
+            width: 250px;
+            height: 175px;
+            background-color: white;
+        }
+
+        .hints-master-container {
+            position: absolute;
+            top: 0px;
+            left: 280px;
+            width: 850px;
+            height: 170;
+            background-color: lightgray;
+            border: 1px solid gray;
+        }
+
+        .hints-container {
+            margin: 0px;
+        }
+
+        .selection-container {
+            position: relative;
+            top: -265px;
+            left: 257px;
+            width: 850px;
+            height: 360px;
+            border: none;
+        }
+
+        .selection-item {
+            color: black;
+            font-family: Arial;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .selection-item-selected {
+            color: white;
+            font-family: Arial;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .selection-item:hover {
+            background: #5d5c61;
+            color: white;
+            text-decoration: none;
+        }
+
+        .selection-title {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .group {
+            background-color: lightgray;
+            cursor: not-allowed;
+        }
+
+        .turret {
+            background-color: #ffe119;
+        }
+
+        .arm {
+            background-color: #bfef45;
+        }
+
+        .front {
+            background-color: #aaffc3;
+        }
+
+        .mast {
+            background-color: #f032e6;
+        }
+
+        .deck {
+            background-color: #fabebe;
+        }
+
+        .wheel {
+            background-color: #42d4f4;
+        }
+
+        .rover-created {
+            background-color: #f58231;
+        }
+
+        .sky {
+            background-color: #34aeeb;
+        }
+
+        .sand {
+            background-color: #3cb44b;
+        }
+
+        .rocks {
+            background-color: #ffd8b1;
+        }
+
+        .other-sci {
+            background-color: #e6beff;
+        }
+
+        .other-eng {
+            background-color: #34ebd8;
+        }
+
+        .selection-input {
+            visibility: hidden;
+            margin-left: -15px;
+            margin-right: 5px;
+        }
+
+        .text {
+            font-size: 13px;
+            font-family: Arial;
+        }
+
+        .stat {
+            position: absolute;
+            font-size: 20px;
+            font-family: Arial;
+            margin-left: 80px;
+            top: 30px;
+        }
+
+
+    </style>
+
+    <script>
+        (function() {
+            document.addEventListener('DOMContentLoaded', updateUI);
+            document.addEventListener('keydown', keydownHandler)
+        })();
+
+        function keydownHandler(event) {
+            event.stopPropagation()
+
+            if (event.key === 'a' || event.key === 'w') {
+                moveToPre();
+            }
+
+            if (event.key === 'd' || event.key === 's') {
+                moveToNext(undefined);
+            }
+
+            if (event.key === 'z') {
+                show_hide_state = 'show_all';
+                display();
+            }
+
+            if (event.key === 'x') {
+                show_hide_state = 'show_all_labeled';
+                display();
+            }
+
+            if (event.key === 'c') {
+                show_hide_state = 'show_all_unlabeled';
+                display();
+            }
+        }
+
+        var show_hide_state = 'show_all'
+        function display() {
+            if (show_hide_state === 'show_all_labeled') {
+                show_all_labeled_handler();
+            } else if (show_hide_state === 'show_all_unlabeled') {
+                show_all_unlabeled_handler();
+            } else {
+                show_all_handler();
+            }
+        }
+
+        function show_all_handler () {
+            var showAllBtn = document.getElementById('show_all_btn');
+            var showAllLabeledBtn = document.getElementById('show_all_labeled_btn');
+            var showAllUnlabeledBtn = document.getElementById('show_all_unlabeled_btn');
+            showAllBtn.style.background = 'green';
+            showAllLabeledBtn.style.background = 'black';
+            showAllUnlabeledBtn.style.background = 'black';
+
+            var subjectContainers = document.getElementsByClassName('subject-container');
+            for (var i = 0; i < subjectContainers.length; i++) {
+                subjectContainers[i].style.display = 'block';
+                subjectContainers[i].nextElementSibling.style.display = 'block';
+            }
+        }
+
+        function show_all_labeled_handler () {
+            var showAllBtn = document.getElementById('show_all_btn');
+            var showAllLabeledBtn = document.getElementById('show_all_labeled_btn');
+            var showAllUnlabeledBtn = document.getElementById('show_all_unlabeled_btn');
+            showAllBtn.style.background = 'black';
+            showAllLabeledBtn.style.background = 'green';
+            showAllUnlabeledBtn.style.background = 'black';
+
+            var subjectContainers = document.getElementsByClassName('subject-container');
+
+            for (var i = 0; i < subjectContainers.length; i++) {
+                var subjectId = toolId + subjectContainers[i].id;
+                if (subjectId in localStorage) {
+                    subjectContainers[i].style.display = 'block';
+                    subjectContainers[i].nextElementSibling.style.display = 'block';
+                } else {
+                    subjectContainers[i].style.display = 'none';
+                    subjectContainers[i].nextElementSibling.style.display = 'none';
+                }
+            }
+        }
+
+        function show_all_unlabeled_handler () {
+            var showAllBtn = document.getElementById('show_all_btn');
+            var showAllLabeledBtn = document.getElementById('show_all_labeled_btn');
+            var showAllUnlabeledBtn = document.getElementById('show_all_unlabeled_btn');
+            showAllBtn.style.background = 'black';
+            showAllLabeledBtn.style.background = 'black';
+            showAllUnlabeledBtn.style.background = 'green';
+
+            var subjectContainers = document.getElementsByClassName('subject-container');
+
+            for (var i = 0; i < subjectContainers.length; i++) {
+                var subjectId = toolId + subjectContainers[i].id;
+                if (!(subjectId in localStorage)) {
+                    subjectContainers[i].style.display = 'block';
+                    subjectContainers[i].nextElementSibling.style.display = 'block';
+                } else {
+                    subjectContainers[i].style.display = 'none';
+                    subjectContainers[i].nextElementSibling.style.display = 'none';
+                }
+            }
+        }
+
+        function moveToNext(position) {
+            var currentPosition = document.body.scrollTop;
+            var subjectContainers = document.getElementsByClassName('subject-container');
+
+            if (position !== undefined) {
+                currentPosition = position;
+            }
+
+            if (currentPosition < subjectContainers[0].offsetTop) {
+                currentPosition = subjectContainers[0].offsetTop + 1;
+            }
+
+
+            for (var i = 0; i < subjectContainers.length; i++) {
+                if (subjectContainers[i].style.display === 'none') {
+                    continue;
+                }
+
+                if (currentPosition < subjectContainers[i].offsetTop) {
+                    window.scrollTo(0, subjectContainers[i].offsetTop);
+                    break;
+                }
+            }
+        }
+
+        function moveToPre() {
+            var currentPosition = document.body.scrollTop;
+
+            var subjectContainers = document.getElementsByClassName('subject-container');
+            for (var i = subjectContainers.length - 1; i >= 0; i--) {
+                if (subjectContainers[i].style.display === 'none') {
+                    continue;
+                }
+
+                if (currentPosition > subjectContainers[i].offsetTop) {
+                    window.scrollTo(0, subjectContainers[i].offsetTop);
+                    break;
+                }
+            }
+        }
+
+        function hints(containerId, hintsFile, doDisplay) {
+            var hintsContainer = document.getElementById(containerId);
+
+            if (doDisplay === true) {
+                var imageElement = document.createElement('img');
+                imageElement.src = hintsFile;
+                hintsContainer.appendChild(imageElement)
+            } else {
+                while (hintsContainer.hasChildNodes()) {
+                    hintsContainer.removeChild(hintsContainer.firstChild);
+                }
+            }
+        }
+
+        function select(filename, annotation, subject_id, radio_id, shouldUpdateDB) {
+            var radio_buttons = document.getElementsByName(subject_id.replace(toolId, ""));
+
+            id = toolId + subject_id.replace(toolId, "");
+            if (!(id in localStorage)) {
+                var labeledStat = document.getElementById('labeled_stat');
+                var unlabeledStat = document.getElementById('unlabeled_stat');
+                labeledStat.innerHTML = parseInt(labeledStat.innerHTML) + 1;
+                unlabeledStat.innerHTML = parseInt(unlabeledStat.innerHTML) - 1;
+            }
+
+            for (var i = 0; i < radio_buttons.length; i++) {
+                if (radio_buttons[i].id == radio_id) {
+                    radio_buttons[i].checked = true;
+
+                    radio_buttons[i].parentElement.classList.add('selection-item-selected');
+                    radio_buttons[i].parentElement.style.backgroundColor = 'black';
+                    if (shouldUpdateDB === true) {
+                        updateDB(filename, annotation, subject_id, radio_id)
+                    }
+                } else {
+                    radio_buttons[i].checked = false;
+                    radio_buttons[i].parentElement.classList.remove('selection-item-selected');
+                    radio_buttons[i].parentElement.style.backgroundColor = null;
+                }
+            }
+
+            if (shouldUpdateDB) {
+                var subjectContainer = radio_buttons[0].closest('.subject-container');
+                moveToNext(subjectContainer.offsetTop + 1);
+            }
+
+            display();
+        }
+
+        var toolId = "$identifier" + "MSLV2^";
+
+        // localStorage data structure
+        // {sid: [filename, annotation, radio_id]}
+        function updateDB(filename, annotation, subject_id, radio_id) {
+            verify_webstorage();
+
+            // Don't need to check if subject_id already exists, setItem takes
+            // care of this issue automatically.
+            var sid = toolId + subject_id;
+            localStorage.setItem(sid, [filename, annotation, radio_id, "$user"])
+        }
+
+        function verify_webstorage() {
+            if (typeof(Storage) === 'undefined') {
+                return alert('The browser does not support HTML5 web storage. ' +
+                    'Please upgrade your browser to recent versions.')
+            }
+        }
+
+        function updateUI(action) {
+            var sids = Object.keys(localStorage);
+            for (var i = 0; i < sids.length; i++) {
+                if (sids[i].indexOf(toolId) >= 0) {
+                    var arr = localStorage.getItem(sids[i]).split(',');
+                    if (action === 'remove') {
+                        select(arr[0], arr[1], sids[i], '', false)
+                    } else {
+                        select(arr[0], arr[1], sids[i], arr[2], false)
+
+                        var labeledStat = document.getElementById('labeled_stat');
+                        var unlabeledStat = document.getElementById('unlabeled_stat');
+                        labeledStat.innerHTML = parseInt(labeledStat.innerHTML) + 1;
+                        unlabeledStat.innerHTML = parseInt(unlabeledStat.innerHTML) - 1;
+                    }
+                }
+            }
+        }
+
+        function resetAll() {
+            var doReset = confirm("CAUTION! CAUTION! This action will remove all the labels you've added so far! " +
+                "Click OK to proceed, and click Cancel to cancel this action.");
+
+            if (doReset) {
+                updateUI('remove');
+
+                var sids = Object.keys(localStorage);
+                for (var i = 0; i < sids.length; i++) {
+                    if (sids[i].indexOf(toolId) >= 0) {
+                        localStorage.removeItem(sids[i]);
+                    }
+                }
+
+                display();
+
+                var labeledStat = document.getElementById('labeled_stat');
+                var unlabeledStat = document.getElementById('unlabeled_stat');
+                labeledStat.innerHTML = 0;
+                unlabeledStat.innerHTML = $total;
+            }
+        }
+
+        function exportCSV(out_file) {
+            var sids = Object.keys(localStorage);
+            var csv_content = '';
+            for (var i = 0; i < sids.length; i++) {
+                if (sids[i].indexOf(toolId) >= 0) {
+                    var arr = localStorage.getItem(sids[i]).split(',');
+                    var entry = sids[i] + ',' + arr[0] + ',' + arr[1] + ','
+                                + arr[3] + '\n';
+                    csv_content += entry;
+                }
+            }
+
+            var blob = new Blob([csv_content], {type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            if (link.download !== undefined) {
+                var url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", out_file);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                return alert('Your browser does not support HTML5 download. Please ' +
+                    'upgrade your browser to a recent version.');
+            }
+        }
+    </script>
+
+</head>
+<body onload="verify_webstorage()">
+<div class="main-container">
+    <div class="button-container-top">
+        <input class="btn" type="button" value="Reset all" onclick="resetAll()" style="float: right; background: red;"/>
+        <input class="btn" id="show_all_btn" type="button" value="Show all" onclick="(function(){show_hide_state='show_all';display();})()" style="background: green;"/>
+        <input class="btn" id="show_all_labeled_btn" type="button" value="Show all labeled" onclick="(function() {show_hide_state='show_all_labeled';display();})()"/>
+        <input class="btn" id="show_all_unlabeled_btn" type="button" value="Show all unlabeled" onclick="(function() {show_hide_state='show_all_unlabeled';display();})()"/>
+        <b class="stat">Total: $total</b>
+        <b class="stat" style="margin-left: 185px">Labeled:</b>
+        <b class="stat" id="labeled_stat" style="margin-left: 270px; color: green;">0</b>
+        <b class="stat" style="margin-left: 310px">Unlabeled: </b>
+        <b class="stat" id="unlabeled_stat" style="margin-left: 420px; color: red;">$total</b>
+    </div>
+
+#for $idx, $subject in enumerate($subjects)
+    #set subject_id = $subject.get_id()
+    #set filename = $subject.get_filename()
+    #set iidx = $idx + 1
+
+    <div class="subject-container"  id="$subject_id">
+        <p class="text"><b>($iidx/$total) $filename </b></p>
+        <img class="image" src="$sub_dir/$filename"/>
+
+        <table class="selection-container">
+            <tr>
+                <td colspan="5" style="text-align: center;">
+                    <b>Please select the single class that best describes the image on the left:</b>
+                </td>
+            </tr>
+            <tr>
+                <td class="selection-title group">Rover-created Group</td>
+                <td class="selection-title group">Rocks Group</td>
+                <td class="selection-title group">Sand Group</td>
+                <td class="selection-title group">Turret Group</td>
+                <td class="selection-title group">Front Group</td>
+                <td class="selection-title group">Wheel Group</td>
+            </tr>
+
+            <tr>
+               <td class="selection-item rover-created"
+                    onclick="select('$filename', 'Dumped sample powder', '$subject_id', 'dsp_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Dumped-sample-powder-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="dsp_$idx" class="selection-input" name="$subject_id" value="Dumped sample powder">Dumped sample powder
+                </td>
+                <td class="selection-item rocks"
+                    onclick="select('$filename', 'Light-toned veins', '$subject_id', 'ltv_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Light-toned-veins-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="ltv_$idx" class="selection-input" name="$subject_id" value="Light-toned veins">Light-toned veins
+                </td>
+                <td class="selection-item sand"
+                    onclick="select('$filename', 'Sand dune/bank', '$subject_id', 'sdb_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Sand-dunebank-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="sdb_$idx" class="selection-input" name="$subject_id" value="Sand dune/bank">Sand dune/bank
+                </td>
+                <td class="selection-item turret"
+                    onclick="select('$filename', 'Turret', '$subject_id', 'tur_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Turret-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="tur_$idx" class="selection-input" name="$subject_id" value="Turret">Turret
+                </td>
+                <td class="selection-item front"
+                    onclick="select('$filename', 'Observation tray', '$subject_id', 'otr_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Observation-tray-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="otr_$idx" class="selection-input" name="$subject_id" value="Observation tray">Observation tray
+                </td>
+                <td class="selection-item wheel"
+                    onclick="select('$filename', 'Wheel', '$subject_id', 'whe_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Wheel-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="whe_$idx" class="selection-input" name="$subject_id" value="Wheel">Wheel
+                </td>
+            </tr>
+
+            <tr>
+                <td class="selection-item rover-created"
+                    onclick="select('$filename', 'Drill hole', '$subject_id', 'dho_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Drill-hole-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="dho_$idx" class="selection-input" name="$subject_id" value="Drill hole">Drill hole
+                </td>
+                <td class="selection-item rocks"
+                    onclick="select('$filename', 'Layers', '$subject_id', 'lay_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Layers-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="lay_$idx" class="selection-input" name="$subject_id" value="Layers">Layers
+                </td>
+                <td class="selection-item sand"
+                    onclick="select('$filename', 'Sand ripples', '$subject_id', 'sri_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Sand-ripples-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="sri_$idx" class="selection-input" name="$subject_id" value="Sand ripples">Sand ripples
+                </td>
+                <td class="selection-item turret"
+                    onclick="select('$filename', 'DRT', '$subject_id', 'dfs_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Drt-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="dfs_$idx" class="selection-input" name="$subject_id" value="DRT">DRT
+                </td>
+                <td class="selection-title group">Mast Group</td>
+                <td class="selection-item wheel"
+                    onclick="select('$filename', 'Wheel joint', '$subject_id', 'win_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Wheel-joint-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="win_$idx" class="selection-input" name="$subject_id" value="Wheel joint">Wheel joint
+                </td>
+            </tr>
+
+            <tr>
+                <td class="selection-item rover-created"
+                    onclick="select('$filename', 'DRT spot', '$subject_id', 'ds_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/DRT-spot-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="ds_$idx" class="selection-input" name="$subject_id" value="DRT spot">DRT spot
+                </td>
+                <td class="selection-item rocks"
+                    onclick="select('$filename', 'Meteorite', '$subject_id', 'met_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Meteorite-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="met_$idx" class="selection-input" name="$subject_id" value="Meteorite">Meteorite
+                </td>
+                <td class="selection-item sand"
+                    onclick="select('$filename', 'Sand', '$subject_id', 'san_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Sand-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="san_$idx" class="selection-input" name="$subject_id" value="Sand">Sand
+                </td>
+                <td class="selection-item turret"
+                    onclick="select('$filename', 'Drill', '$subject_id', 'dri_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Drill-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="dri_$idx" class="selection-input" name="$subject_id" value="Drill">Drill
+                </td>
+                <td class="selection-item mast"
+                    onclick="select('$filename', 'REMS wind sensor', '$subject_id', 'rws_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/REMS-wind-sensor-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="rws_$idx" class="selection-input" name="$subject_id" value="REMS wind sensor">REMS wind sensor
+                </td>
+                <td class="selection-title group">Other Rover</td>
+            </tr>
+
+            <tr>
+                <td class="selection-item rover-created"
+                    onclick="select('$filename', 'Wheel tracks', '$subject_id', 'wtr_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Wheel-tracks-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="wtr_$idx" class="selection-input" name="$subject_id" value="Wheel tracks">Wheel tracks
+                </td>
+                <td class="selection-item rocks"
+                    onclick="select('$filename', 'Bright material', '$subject_id', 'bma_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Bright-material-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="bma_$idx" class="selection-input" name="$subject_id" value="Bright material">Bright material
+                </td>
+                <td class="selection-title group">Other Science</td>
+                <td class="selection-item turret"
+                    onclick="select('$filename', 'Scoop', '$subject_id', 'sco_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Scoop-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="sco_$idx" class="selection-input" name="$subject_id" value="Scoop">Scoop
+                </td>
+                <td class="selection-item mast"
+                    onclick="select('$filename', 'Mastcam', '$subject_id', 'mam_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Mastcam-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="mam_$idx" class="selection-input" name="$subject_id" value="Mastcam">Mastcam
+                </td>
+                <td class="selection-item other-eng"
+                    onclick="select('$filename', 'Other rover part', '$subject_id', 'orp_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Other-rover-part-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="orp_$idx" class="selection-input" name="$subject_id" value="Other rover part">Other rover part
+                </td>
+            </tr>
+
+            <tr>
+                <td class="selection-title group">Sky Group</td>
+                <td class="selection-item rocks"
+                    onclick="select('$filename', 'Dark-toned rock', '$subject_id', 'dtr_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Dark-toned-rock-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="dtr_$idx" class="selection-input" name="$subject_id" value="Dark-toned rock">Dark-toned rock
+                </td>
+                <td class="selection-item other-sci"
+                    onclick="select('$filename', 'Distant landscape', '$subject_id', 'dl_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Distant-landscape-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="dl_$idx" class="selection-input" name="$subject_id" value="Distant landscape">Distant landscape
+                </td>
+                <td class="selection-item turret"
+                    onclick="select('$filename', 'MAHLI', '$subject_id', 'mah_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/MAHLI-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="mah_$idx" class="selection-input" name="$subject_id" value="MAHLI">MAHLI
+                </td>
+                <td class="selection-title group">Deck Group</td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td class="selection-item sky"
+                    onclick="select('$filename', 'Sun', '$subject_id', 'sun_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Sun-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="sun_$idx" class="selection-input" name="$subject_id" value="Sun">Sun
+                </td>
+                <td class="selection-item rocks"
+                    onclick="select('$filename', 'Outcrop', '$subject_id', 'ouc_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Outcrop-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="ouc_$idx" class="selection-input" name="$subject_id" value="Outcrop">Outcrop
+                </td>
+                <td class="selection-item other-sci"
+                    onclick="select('$filename', 'ground', '$subject_id', 'god_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Ground-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="god_$idx" class="selection-input" name="$subject_id" value="Ground">Ground
+                </td>
+                <td class="selection-item turret"
+                    onclick="select('$filename', 'Portion tube', '$subject_id', 'pt_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Portion-tube-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="pt_$idx" class="selection-input" name="$subject_id" value="Portion tube">Portion tube
+                </td>
+                <td class="selection-item deck"
+                    onclick="select('$filename', 'SAM Inlet', '$subject_id', 'sin_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/SAM-inlet-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="sin_$idx" class="selection-input" name="$subject_id" value="SAM Inlet">SAM Inlet
+                </td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td class="selection-item sky"
+                    onclick="select('$filename', 'Moon', '$subject_id', 'moon_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Moon-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="moon_$idx" class="selection-input" name="$subject_id" value="Moon">Moon
+                </td>
+                <td class="selection-item rocks"
+                    onclick="select('$filename', 'Float', '$subject_id', 'flo_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Float-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="flo_$idx" class="selection-input" name="$subject_id" value="Float">Float
+                </td>
+                <td class="selection-item other-sci"
+                    onclick="select('$filename', 'Artifact', '$subject_id', 'art_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Artifact-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="art_$idx" class="selection-input" name="$subject_id" value="Artifact">Artifact
+                </td>
+                <td class="selection-title group">Arm Group</td>
+                <td class="selection-item deck"
+                    onclick="select('$filename', 'Mastcam cal target', '$subject_id', 'mct_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Mastcam-cal-target-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="mct_$idx" class="selection-input" name="$subject_id" value="Mastcam cal target">Mastcam cal target
+                </td>
+            </tr>
+
+            <tr>
+                <td class="selection-item sky"
+                    onclick="select('$filename', 'Eclipse', '$subject_id', 'ecl_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Eclipse-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="ecl_$idx" class="selection-input" name="$subject_id" value="Eclipse">Eclipse
+                </td>
+                <td class="selection-item rocks"
+                    onclick="select('$filename', 'Pebbles', '$subject_id', 'peb_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Pebbles-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="peb_$idx" class="selection-input" name="$subject_id" value="Pebbles">Pebbles
+                </td>
+                <td></td>
+                <td class="selection-item arm"
+                    onclick="select('$filename', 'Arm cover', '$subject_id', 'aco_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Arm-cover-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="aco_$idx" class="selection-input" name="$subject_id" value="Arm cover">Arm cover
+                </td>
+                <td></td>
+            </tr>
+
+            <tr>
+                <td class="selection-item sky"
+                    onclick="select('$filename', 'Stars', '$subject_id', 'sta_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Stars-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="sta_$idx" class="selection-input" name="$subject_id" value="Stars">Stars
+                </td>
+                <td class="selection-item rocks"
+                    onclick="select('$filename', 'Close-up rock', '$subject_id', 'cur_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Close-up-rock-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="cur_$idx" class="selection-input" name="$subject_id" value="Close-up rock">Close-up rock
+                </td>
+                <td></td>
+                <td class="selection-item arm"
+                    onclick="select('$filename', 'Arm joint', '$subject_id', 'ajo_$idx', true)"
+                    onmouseenter="hints('$filename-hints', 'libs/msl-v2-doc/Arm-joint-hints.png', true)"
+                    onmouseleave="hints('$filename-hints', '', false)">
+                    <input type="radio" id="ajo_$idx" class="selection-input" name="$subject_id" value="Arm joint">Arm joint
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <div class="bottom-container">
+        <div class="reference-container">
+            <div>
+                <ol>
+                    <li>
+                        Selecting a class auto-advances to the next image.
+                    </li>
+                    <li>
+                        Use &lt;s&gt; (next) and &lt;w&gt; (previous) to step through images.
+                    </li>
+                    <li>
+                        When complete, click "Export CSV" button at the bottom of the page.
+                    </li>
+                    <li>
+                        Use &lt;z&gt; (show all images), &lt;x&gt; (show all labeled images),
+                        and &lt;c&gt; (show all unlabeled images) to show or hide images.
+                    </li>
+                </ol>
+            </div>
+
+            <ul> Reference information:
+                <li>
+                    <a href="libs/msl-v2-doc/MSL_classes_science_v6.pdf" target="_blank">Science Classes</a>
+                </li>
+                <li>
+                    <a href="libs/msl-v2-doc/MSL_rover_diagram.png" target="_blank">Rover diagram</a>
+                </li>
+                <li>
+                    <a href="libs/msl-v2-doc/MSL_classes_rover.pdf" target="_blank">Rover Classes</a>
+                </li>
+
+            </ul>
+        </div>
+        <div class="hints-master-container">
+            <b>Hover over a class name for examples</b>
+            <div class="hints-container" id="$filename-hints"></div>
+        </div>
+    </div>
+
+    <hr>
+#end for
+
+    <div class="button-container-bottom">
+        <input class="btn" type="button" value="Export CSV" onclick="exportCSV('$user-msl-v2-labels.csv')"/>
+    </div>
+
+</div>
+</body>
+</html>

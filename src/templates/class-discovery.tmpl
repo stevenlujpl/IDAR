@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Class Discovery Tool</title>
+
+<script src="libs/jquery-1.12.4.js" type="text/javascript"></script>
+<script src="libs/jquery-ui-1.12.1/jquery-ui.min.js" type="text/javascript"></script>
+<script src="libs/masonry-4.2.2.pkgd.min.js" type="text/javascript"></script>
+
+<link href="libs/jquery-ui-1.12.1/jquery-ui.css" rel="stylesheet" type="text/css">
+<link href="libs/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+<style type="text/css">
+body {
+    height: 100%;
+    width: 100%;
+    background-color: darkgray;
+}
+
+/*This is to prevent images from being dragged.*/
+img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+}
+
+/*This is to prevent images from being selected.*/
+img {
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.cd-categories-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 350px;
+    height: 500px;
+    background-color: white;
+}
+
+.cd-categories-container-title {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 350px;
+    height: 25px;
+    background-color: lightgray;
+}
+
+.text {
+    font-size: 12px;
+    font-family: Arial;
+}
+
+.cd-categories-container-items {
+    position: absolute;
+    top: 25px;
+    left: 0px;
+    width: 350px;
+    height: 435px;
+    overflow-y: auto;
+}
+
+.cd-categories-container-header {
+    background-color: lightgray;
+    height: 21px;
+    border-radius: 5px;
+    margin: 5px 2px 10px 2px;
+}
+
+.dialog-title {
+    position: absolute;
+    left: 20px;
+    font-weight: bold
+}
+
+.dialog-input {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    border: 1px solid black;
+    font-size: 12px;
+    font-family: Arial;
+}
+
+.dialog-color {
+    position: absolute;
+    top: 65px;
+    left: 20px;
+    font-weight: bold;
+}
+
+.dialog-color-btn {
+    position: absolute;
+    top: 60px;
+    left: 190px;
+}
+
+.dialog-hotkey {
+    position: absolute;
+    top: 95px;
+    left: 20px;
+    font-weight: bold;
+}
+
+.dialog-hotkey-select {
+    position: absolute;
+    top: 90px;
+    left: 190px;
+    height: 25px;
+    font-size: 12px;
+    font-family: Arial;
+    cursor: pointer;
+}
+
+.dialog-description {
+    position: absolute;
+    top: 125px;
+    left: 20px;
+    font-weight: bold
+}
+
+.dialog-textarea {
+    position: absolute;
+    top: 155px;
+    left: 20px;
+    resize: none;
+    border: 1px solid black;
+    font-size: 10px;
+    font-family: Arial;
+}
+
+.dialog-create-btn {
+    position: absolute;
+    top: 290px;
+    left: 410px;
+    width: 40px;
+}
+
+.color-square {
+    float: left;
+    width: 14px;
+    height: 14px;
+    border-radius: 10%;
+    background-color: gray;
+    margin: 2px 5px 0px 0px;
+}
+
+.hotkey-circle {
+    float: left;
+    width: 14px;
+    height: 14px;
+    border-radius: 10%;
+    background-color: white;
+    margin: 2px 5px 0px 0px;
+    text-align: center;
+}
+
+.header-title {
+    float: left;
+    margin: 2px 10px 0px 0px;
+}
+
+.header-option-trash {
+    float: right;
+    width: 20px;
+}
+
+.header-option-edit {
+    float: right;
+    width: 20px;
+    margin-top: 1px;
+    margin-right: 2px;
+}
+
+.header-onoffswitch {
+    float: right;
+    width: 80px;
+    height: 27px;
+}
+
+.header-count {
+    float: right;
+    font-weight: bold;
+    margin: 2px 10px 0px 0px;
+}
+
+.cd-categories-description {
+    font-size: 10px;
+    font-family: Arial;
+}
+
+.cd-categories-toolbar {
+    position: absolute;
+    top: 461px;
+    left: 0px;
+    width: 490px;
+    height: 40px;
+    background-color: darkgray;
+}
+
+.main-container {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    margin-right: 380px;
+    height: 100%;
+    background-color: white;
+}
+
+.main-container-title {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 70px;
+    text-align: center;
+    font-size: 40px;
+    background-color: white;
+}
+
+.main-container-title-span {
+    display: inline-block;
+    margin-top: 15px;
+}
+
+.main-container-toolbar {
+    position: absolute;
+    top: 70px;
+    left: 0px;
+    width: 100%;
+    height: 50px;
+    text-align: center;
+    border-bottom: 1px solid black;
+    background-color: white;
+}
+
+.main-container-display {
+    position: absolute;
+    top: 121px;
+    left: 0px;
+    width: 100%;
+    background-color: white;
+}
+
+.item {
+    position: relative;
+    width: 258px;
+    height: 203px;
+    float: left;
+    background-color: darkgray;
+    margin: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 2px solid darkgray;
+    outline:none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.item-enlarged {
+    position: relative;
+    width: 357px;
+    height: 302px;
+    float: left;
+    background-color: darkgray;
+    margin: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 2px solid darkgray;
+    outline:none
+}
+
+.highlight {
+    border: 2px solid blue;
+}
+
+.item-name {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 238px;
+    height: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.item-image {
+    position: absolute;
+    top: 35px;
+    left: 10px;
+    width: 128px;
+    height: 128px;
+    cursor: pointer;
+}
+
+.item-image-enlarged{
+    position: absolute;
+    top: 35px;
+    left: 10px;
+    width: 227px;
+    height: 227px;
+    cursor: pointer;
+}
+
+.item-metadata-panel {
+    position: absolute;
+    top: 35px;
+    left: 148px;
+    width: 100px;
+    height: 128px;
+    font-size: 13px;
+    font-family: Arial;
+}
+
+.item-metadata-panel-enlarged {
+    position: absolute;
+    top: 35px;
+    left: 247px;
+    width: 100px;
+    height: 227px;
+    font-size: 13px;
+    font-family: Arial;
+}
+
+.item-cd-category-panel {
+    position: absolute;
+    top: 173px;
+    left: 10px;
+    width: 238px;
+    height: 20px;
+    background-color: white;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.item-cd-category-panel-enlarged {
+    position: absolute;
+    top: 272px;
+    left: 10px;
+    width: 337px;
+    height: 20px;
+    background-color: white;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.category-field-active {
+    border: 2px solid green;
+}
+.category-field-hover {
+    border: 2px solid greenyellow;
+}
+
+.category-dropped {
+    width: 14px;
+    height: 14px;
+    border-radius: 10%;
+    float: left;
+    margin: 3px 5px 0px 3px;
+    cursor: pointer;
+}
+
+/*********************** General button style ***********************/
+.btn {
+    -webkit-border-radius: 11px;
+    -moz-border-radius: 11px;
+    border-radius: 11px;
+    font-family: Arial;
+    color: #ffffff;
+    font-size: 12px;
+    background: #000000;
+    padding: 8px 15px 8px 15px;
+    text-decoration: none;
+    cursor: pointer;
+    outline: none;
+}
+.btn:hover {
+    background: green;
+    text-decoration: none;
+}
+/*********************** General button style ends ***********************/
+
+/*********************** Toggle button style ***********************/
+.onoffswitch {
+    position: relative; width: 70px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+.onoffswitch-checkbox {
+    display: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    border: 2px solid #999999; border-radius: 10px;
+}
+.onoffswitch-inner {
+    display: block; width: 200%; margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+    display: block; float: left; width: 50%; height: 15px; padding: 0; line-height: 15px;
+    font-size: 9px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+    content: "ON";
+    padding-left: 14px;
+    background-color: #000000; color: #FFFFFF;
+}
+.onoffswitch-inner:after {
+    content: "OFF";
+    padding-right: 14px;
+    background-color: #EEEEEE; color: #999999;
+    text-align: right;
+}
+.onoffswitch-switch {
+    display: block; width: 5px; margin: 5px;
+    background: #FFFFFF;
+    position: absolute; top: 0; bottom: 0;
+    right: 51px;
+    border: 2px solid #999999; border-radius: 10px;
+    transition: all 0.3s ease-in 0s;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px;
+}
+/*********************** Toggle button style ends ***********************/
+
+/*!******** override JqueryUI and font-awesome default css styles *********!*/
+.ui-accordion .ui-accordion-header {
+    font-size: 12px;
+    outline: none;
+}
+.ui-state-default {
+    border: 0px;
+    background: lightgray;
+    font-weight: bold;
+    color: black;
+}
+.ui-state-active {
+    border: none;
+    background: lightgray;
+    color: darkred;
+}
+.ui-state-active .fa {
+    color: black;
+}
+.fa:hover {
+    color: green;
+}
+.cd-categories-container-header .ui-icon {
+    display: none;
+}
+
+.ui-widget select {
+    font-size: 12px;
+}
+/***************** override JqueryUI's default css styles end ***********/
+</style>
+
+<script>
+var layoutManager = undefined;
+
+jQuery(document).ready(function () {
+    // Enable Masonry automatically layout
+    var mainContainDisplay = document.querySelector(".main-container-display");
+    var itemImageList = document.getElementsByClassName("item-image");
+    layoutManager = new Masonry(mainContainDisplay, {
+        itemSelector: '.item',
+        columnWidth: 128,
+        gutter: 10
+    });
+
+    // Add click event listeners to the images with classname "item-image", so that the images can be toggled
+    // between viewing size and the original size.
+    for (var i = 0; i < itemImageList.length; i++) {
+        itemImageList[i].addEventListener("click", function (event) {
+            event.stopPropagation();
+            if (!matchesSelector(event.target, ".item-image")) {
+                return;
+            }
+
+            var targetClicked = event.target;
+            var parentElement = targetClicked.parentNode;
+            var metadataElement = parentElement.getElementsByClassName("item-metadata-panel")[0];
+            var cdCategoryElement = parentElement.getElementsByClassName("item-cd-category-panel")[0];
+
+            targetClicked.classList.toggle("item-image-enlarged");
+            parentElement.classList.toggle("item-enlarged");
+            metadataElement.classList.toggle("item-metadata-panel-enlarged");
+            cdCategoryElement.classList.toggle("item-cd-category-panel-enlarged");
+
+            layoutManager.layout();
+        });
+    }
+
+    // Enable JQuery's accordion on the cd categories container
+    jQuery("#cdCategoriesContainerItems").accordion({
+        header: "> .cd-categories-container-header",
+        collapsible: true,
+        active: false,
+        heightStyle: "content"
+    });
+
+
+    // Make the DIV with classname "item" droppable
+    jQuery(".item").droppable({
+        accept: ".group",
+        classes: {
+            "ui-droppable-active": "category-field-active",
+            "ui-droppable-hover": "category-field-hover"
+        },
+        drop: function (event, ui) {
+            categoryDropHandler(this, ui.draggable["0"]);
+        }
+    });
+
+    // Update count for unlabeled cd category
+    increaseCounts(undefined);
+
+    var items = document.getElementsByClassName("item");
+    var displayArea = document.getElementsByClassName("main-container-display")[0];
+
+    // Enable bulk selection
+    displayArea.addEventListener("click", function (event) {
+        for (var i = 0; i < items.length; i++) {
+            dehighlightItem(items[i]);
+        }
+    });
+
+    for (var i = 0; i < items.length; i++) {
+        items[i].addEventListener("click", function (event){
+            event.stopPropagation();
+
+            if (event.currentTarget.className.indexOf("highlight") >= 0) {
+                if (event.shiftKey) {
+                    dehighlightItem(event.currentTarget);
+                } else {
+                    // de-highlight all the other items, and then highlight the one that was clicked.
+                    for (var j = 0; j < items.length; j++) {
+                        dehighlightItem(items[j]);
+                    }
+                    highlightItem(event.currentTarget);
+                }
+            } else {
+                if (event.shiftKey) {
+                    highlightItem(event.currentTarget);
+                } else {
+                    // de-highlight all the other items, and then highlight the one that was clicked.
+                    for (var j = 0; j < items.length; j++) {
+                        dehighlightItem(items[j]);
+                    }
+                    highlightItem(event.currentTarget);
+                }
+
+            }
+        });
+    }
+
+    // Enable hotkey
+    var displayArea = document.getElementsByClassName("main-container-display")[0];
+    displayArea.addEventListener("keydown", function (event) {
+        var keyPressed = String.fromCharCode(event.keyCode).toLowerCase();
+        var selectedItems = document.getElementsByClassName("highlight");
+        var hotkeyElements = document.getElementsByClassName("hotkey-circle");
+
+        for (var i = 0; i < hotkeyElements.length; i++) {
+            var hotkey = hotkeyElements[i].innerHTML;
+            if (hotkey === keyPressed) {
+                for (var j = 0; j < selectedItems.length; j++) {
+                    categoryDropHandler(selectedItems[j], hotkeyElements[i].parentNode);
+                }
+            }
+        }
+    });
+});
+
+// Highlight a selected item
+function highlightItem (item) {
+    jQuery(item).addClass("highlight");
+}
+
+// De-highlight a selected item
+function dehighlightItem (item) {
+    jQuery(item).removeClass("highlight");
+}
+
+// Global variables for making the category and subject keys unique among different EAT tasks.
+var CATEGORY_PREFIX = "$identifier" + "ea^cat^";
+var SUBJECT_PREFIX = "$identifier" + "ea^sub^";
+var DELIMITER = "%del%";
+
+// HTML5 input tag's color list attribute only recognizes color defined in hex code. The following hex code
+// translated into colors:
+// brown, cyan, green, magenta, orange, purple, red, yellow, blue, light-blue-ish
+var COLOR_LIST = ["#aa7942", "#00fdff", "#00f900", "#ff40ff", "#ff9300",
+                  "#942192", "#ff2600", "#fffb00", "#0433ff", "#4a86e8"];
+
+function verify_environment() {
+    // Verify HTML5 local storage
+    if (typeof(Storage) === 'undefined') {
+        return alert("The browser does not support HTML5 web storage. Please upgrade your browser to recent " +
+            "versions.");
+    }
+    // Verify HTML5 download attribute
+    var link = document.createElement('a');
+    if (link.download === undefined) {
+        alert("Your browser does not support HTML5 download. You can still use this tool, but you won't be " +
+            "able to use exportCSV functionality.");
+    }
+    // Verify browser. Only Google's Chrome is supported currently.
+    if (!isChrome()) {
+        alert("This tool is currently only supported in Google's Chrome browser. Something may be broken " +
+            "in other browsers.");
+    }
+}
+
+// Determine whether or not the browser is Google's Chrome
+function isChrome () {
+    var isChromium = window.chrome;
+    var winNav = window.navigator;
+    var vendorName = winNav.vendor;
+    var isOpera = typeof window.opr !== "undefined";
+    var isIEedge = winNav.userAgent.indexOf("Edge") > -1;
+    if(isChromium !== null && typeof isChromium !== "undefined" && vendorName === "Google Inc."
+        && isOpera === false && isIEedge === false) {
+        return true;
+    }
+
+    return false;
+}
+
+// Convert rgb value in the format of "rgb(0,0,0)"to its corresponding hex representation.
+function rgbToHex (rgb) {
+    var parts = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+    delete (parts[0]);
+    for (var i = 1; i <= 3; ++i) {
+        parts[i] = parseInt(parts[i]).toString(16);
+        if (parts[i].length == 1) {
+            parts[i] = "0" + parts[i];
+        }
+    }
+    var hex ="#" + parts.join("");
+    return hex;
+}
+
+// Handler function for the button "New Category", which create a JQuery dialog window for creating new cd
+// categories.
+function categoryWindow(headerElement, descriptionElement, action) {
+    // De-highlight all items
+    var items = document.getElementsByClassName("item");
+    for (var i = 0; i < items.length; i++) {
+        dehighlightItem(items[i]);
+    }
+
+    // Default values if the arguments are passed in "undefined".
+    var defaultTitle = "";
+    var defaultColor = "#aa7942";
+    var defaultHotkey = "none";
+    var defaultDescription = "";
+    if (headerElement !== undefined) {
+        defaultTitle = headerElement.getElementsByClassName("header-title")[0].innerHTML;
+        defaultHotkey = headerElement.getElementsByClassName("hotkey-circle")[0].innerHTML;
+        defaultColor = headerElement.getElementsByClassName("color-square")[0].style.backgroundColor;
+        defaultColor = rgbToHex(defaultColor);
+    }
+
+    if (descriptionElement !== undefined) {
+        defaultDescription = descriptionElement.innerHTML;
+    }
+
+    // dialog window container
+    var dialogWindow = document.createElement("div");
+    dialogWindow.title = "Create New Category";
+
+    // category title field
+    var categoryTitle = document.createElement("span");
+    categoryTitle.className = "dialog-title text";
+    categoryTitle.innerHTML = "Category Title (required, comma is not allowed, no more than 20 characters)";
+    var categoryInput = document.createElement("input");
+    categoryInput.className = "dialog-input";
+    categoryInput.type = "text";
+    categoryInput.style.fontSize = "12px";
+    categoryInput.style.fontFamily = "Arial";
+    categoryInput.size = "22";
+    categoryInput.maxLength = "20";
+    categoryInput.required = true;
+    categoryInput.value = defaultTitle;
+    dialogWindow.appendChild(categoryTitle);
+    dialogWindow.appendChild(categoryInput);
+
+    // category color field
+    var categoryColor = document.createElement("span");
+    categoryColor.className = "dialog-color text";
+    categoryColor.innerHTML = "Category Color (required)";
+    categoryColor.title = "The color is used for visualization purposes only. It is recommended to select " +
+        "colors that are visually distinguishable.";
+    var colorBtn = document.createElement("input");
+    colorBtn.type = "color";
+    colorBtn.setAttribute("list", "ea_color_list");
+    colorBtn.className = "dialog-color-btn btn";
+    colorBtn.value = defaultColor;
+    colorBtn.style.padding = "0px";
+    colorBtn.style.borderRadius = "0px";
+    colorBtn.style.background = "black";
+    var colorBtnDataList = document.createElement("datalist");
+    colorBtnDataList.id = "ea_color_list";
+    for (var i = 0; i < COLOR_LIST.length; i++) {
+        var option = document.createElement("option");
+        option.value = COLOR_LIST[i];
+        colorBtnDataList.appendChild(option);
+    }
+    dialogWindow.appendChild(categoryColor);
+    dialogWindow.appendChild(colorBtn);
+    dialogWindow.appendChild(colorBtnDataList);
+
+    // category hotkey field
+    var categoryHotkey = document.createElement("span");
+    categoryHotkey.className = "dialog-hotkey text";
+    categoryHotkey.innerHTML = "Category Hotkey (optional)";
+    var categoryHotkeySelect = document.createElement("select");
+    categoryHotkeySelect.className = "dialog-hotkey-select";
+    categoryHotkeySelect.id = 'dialogHotkeySelect';
+    var option = document.createElement("option");
+    option.value = "none";
+    option.innerHTML = "-- select a hotkey --"
+    categoryHotkeySelect.appendChild(option);
+    for (var i = 97; i <= 122; i++) {
+        option = document.createElement("option")
+        var hotkey = String.fromCharCode(i);
+        option.value = hotkey;
+        option.innerHTML = hotkey;
+        categoryHotkeySelect.appendChild(option);
+    }
+    categoryHotkeySelect.value = defaultHotkey;
+    dialogWindow.appendChild(categoryHotkey);
+    dialogWindow.appendChild(categoryHotkeySelect);
+
+    // category description field
+    var categoryDescription = document.createElement("span");
+    categoryDescription.className = "dialog-description text";
+    categoryDescription.innerHTML = "Category Description (optional)";
+    var categoryTextarea = document.createElement("textarea");
+    categoryTextarea.className = "dialog-textarea";
+    categoryTextarea.rows = "8";
+    categoryTextarea.cols = "73";
+    categoryTextarea.style.fontSize = "12px";
+    categoryTextarea.style.fontFamily = "Arial";
+    categoryTextarea.value = defaultDescription;
+    dialogWindow.appendChild(categoryDescription);
+    dialogWindow.appendChild(categoryTextarea);
+
+    // add action button which could be "Create" or "Update"
+    var actionBtn = document.createElement("input");
+    actionBtn.className = "dialog-create-btn btn";
+    actionBtn.style.fontFamily = "Arial";
+    actionBtn.style.fontSize = "12px";
+    actionBtn.style.padding = "5px 10px 5px 10px";
+    actionBtn.style.color = "transparent";
+    actionBtn.style.textShadow = "0 0 0 white";
+    if (action.toLowerCase() === "add") {
+        actionBtn.value = "Create";
+        actionBtn.onclick = function () {
+            // de-highlight all items
+            var items = document.getElementsByClassName("item");
+            for (var i = 0; i < items.length; i++) {
+                dehighlightItem(items[i]);
+            }
+
+            // Check for empty strings. A string of spaces is considered an empty string.
+            if (categoryInput.value.replace(/\s+/g, '') === "") {
+                alert("Category title is required, which cannot be empty.")
+            } else {
+                var status = createCategoryHandler(colorBtn.value, categoryHotkeySelect.value,
+                    categoryInput.value, categoryTextarea.value);
+                if (status === true) {
+                    jQuery(dialogWindow).dialog("close");
+                } else {
+                    alert("Cannot create Class Category. Please check your inputs.");
+                }
+            }
+        }
+    } else {
+        actionBtn.value = "Update";
+        actionBtn.onclick = function () {
+            // de-highlight all items
+            var items = document.getElementsByClassName("item");
+            for (var i = 0; i < items.length; i++) {
+                dehighlightItem(items[i]);
+            }
+
+            // Check for empty strings. A string of spaces is considered an empty string.
+            if (categoryInput.value.replace(/\s+/g, '') === "") {
+                alert("Category title is required, which cannot be empty.")
+            } else {
+                var status = editCategoryHandler(colorBtn.value, categoryInput.value, categoryTextarea.value,
+                    categoryHotkeySelect.value, headerElement, descriptionElement);
+                if (status === true) {
+                    jQuery(dialogWindow).dialog("close");
+                } else {
+                    alert("Cannot update Class Category. Please check your inputs.");
+                }
+            }
+        }
+    }
+    dialogWindow.appendChild(actionBtn);
+    document.body.appendChild(dialogWindow);
+
+    // Render the dialog window into JqueryUI's dialog
+    jQuery(dialogWindow).dialog({
+        resizable: false,
+        height: 370,
+        width: 500
+    });
+}
+
+// Handler function of the button "Create" in "Create New Category" window.
+function createCategoryHandler (color, hotkey, title, description) {
+    // Get the parent container element
+    var container = document.getElementById("cdCategoriesContainerItems");
+    // Check title to see if it contains commas.
+    if (title.indexOf(",") >= 0) {
+        return false;
+    }
+
+    // Check title doesn't already exist before adding it.
+    var containerChildNodes = container.childNodes;
+    for (var i = 0; i < containerChildNodes.length; i++) {
+        var subNodes = containerChildNodes[i].childNodes;
+        for (var j = 0; j < subNodes.length; j++) {
+            if (subNodes[j].className === "header-title") {
+                if (subNodes[j].innerHTML === title) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    // Hotkey must be unique.
+    var hotkeyElements = document.getElementsByClassName("hotkey-circle");
+    for (var i = 0; i < hotkeyElements.length; i++) {
+        if (hotkeyElements[i].innerHTML === hotkey) {
+            return false;
+        }
+    }
+
+    // Create description div
+    var descriptionDiv = document.createElement("div");
+    descriptionDiv.className = "cd-categories-description";
+    descriptionDiv.innerHTML = description;
+    jQuery(container).prepend(descriptionDiv);
+
+    // Create header div
+    var headerDiv = document.createElement("h5");
+    headerDiv.className = "group cd-categories-container-header";
+    jQuery(container).prepend(headerDiv);
+
+    // Add color square to header div
+    var colorSquare = document.createElement("div");
+    colorSquare.className = "color-square";
+    colorSquare.style.backgroundColor = color;
+    headerDiv.appendChild(colorSquare);
+
+    // Add hotkey to header div
+    var hotkeyCircle = document.createElement("div");
+    hotkeyCircle.className = "hotkey-circle";
+    if (hotkey === 'none') {
+        hotkeyCircle.innerHTML = '';
+    } else {
+        hotkeyCircle.innerHTML = hotkey;
+    }
+    headerDiv.appendChild(hotkeyCircle)
+
+    // Add header title panel to header div
+    var headerTitle = document.createElement("div");
+    headerTitle.className = "header-title";
+    headerTitle.innerHTML = title;
+    headerDiv.appendChild(headerTitle);
+
+    // Add option panel to header div
+    var optionEditDiv = document.createElement("div");
+    optionEditDiv.className = "header-option-edit";
+    var optionEditIcon = document.createElement("i");
+    optionEditIcon.className = "fa fa-pencil-square-o";
+    optionEditIcon.style.fontSize = "18px";
+    optionEditIcon.setAttribute("aria-hidden", "true");
+    optionEditIcon.onclick = function (event) {
+        labelEditHandler(event, this)
+    }
+    var optionTrashDiv = document.createElement("div");
+    optionTrashDiv.className = "header-option-trash";
+    var optionTrashIcon = document.createElement("i");
+    optionTrashIcon.className = "fa fa-trash";
+    optionTrashIcon.style.fontSize = "18px";
+    optionTrashIcon.setAttribute("aria-hidden", "true");
+    optionTrashIcon.onclick = function (event) {
+        labelTrashHandler(event, this)
+    }
+    optionEditDiv.appendChild(optionEditIcon);
+    optionTrashDiv.appendChild(optionTrashIcon);
+    headerDiv.appendChild(optionTrashDiv);
+    headerDiv.appendChild(optionEditDiv);
+
+    // Add onoffswitch panel to header div
+    var onoffSwitchDiv = document.createElement("div");
+    onoffSwitchDiv.className = "header-onoffswitch";
+    var onoffSwitch = document.createElement("div");
+    onoffSwitch.className = "onoffswitch";
+    onoffSwitch.onclick = function (event) {
+        onoffSwitchHandler(event);
+    }
+    var checkbox = document.createElement("input");
+    checkbox.className = "onoffswitch-checkbox";
+    checkbox.type = "checkbox";
+    checkbox.name = title + "_name";
+    checkbox.id = title + "_id";
+    checkbox.checked = true;
+    var label = document.createElement("label");
+    label.className = "onoffswitch-label";
+    label.setAttribute("for", title + "_id");
+    var onIcon = document.createElement("span");
+    onIcon.className = "onoffswitch-inner";
+    var offIcon = document.createElement("span");
+    offIcon.className = "onoffswitch-switch";
+    label.appendChild(onIcon);
+    label.appendChild(offIcon);
+    onoffSwitch.appendChild(checkbox);
+    onoffSwitch.appendChild(label);
+    onoffSwitchDiv.appendChild(onoffSwitch);
+    headerDiv.appendChild(onoffSwitchDiv);
+
+    // Add count panel to header div
+    var headerCountDiv = document.createElement("div");
+    headerCountDiv.className = "header-count";
+    headerCountDiv.innerHTML = "0";
+    headerDiv.appendChild(headerCountDiv);
+    // Make item labels draggable
+    jQuery(headerDiv).draggable({
+        zIndex: 10000,
+        stack: ".group",
+        appendTo: "body",
+        revert: "invalid",
+        helper: "clone",
+        cursor: "move",
+        containment: "document",
+        opacity: 0.7
+    });
+    jQuery(container).accordion("refresh");
+
+    // update local storage
+    updateCDCategoryLocalStorage(title, description, color, true);
+
+    return true;
+}
+
+// Handler function for cd category drop event
+function categoryDropHandler (source, target) {
+    var title = target.getElementsByClassName("header-title")[0].innerHTML;
+    var color = rgbToHex(target.getElementsByClassName("color-square")[0].style.backgroundColor);
+    if (title === undefined || color === undefined) {
+        return alert("Unable to retrieve cd category name or color.");
+    }
+
+    var existingCategoryElements = source.getElementsByClassName("category-dropped");
+    for (var i = 0; i < existingCategoryElements.length; i++) {
+        if (existingCategoryElements[i].title === title) {
+            return alert("Cannot add duplicated cd category.");
+        }
+    }
+
+    var category = document.createElement("div");
+    category.className = "category-dropped";
+    category.style.backgroundColor = color;
+    category.title = title;
+
+    category.addEventListener("click", function (event) {
+        event.stopPropagation();
+
+        // Title and color needs to be re-retrieved in this scope
+        // because of the edit action.
+        title = target.getElementsByClassName("header-title")[0].innerHTML;
+        color = rgbToHex(target.getElementsByClassName("color-square")[0].style.backgroundColor);
+        source.getElementsByClassName("item-cd-category-panel")[0].removeChild(category);
+        removeSubjectLocalStorage(source.id, title, color);
+        enableFilter();
+        decreaseCounts(category);
+    });
+
+    var cdCategoryPanel = source.getElementsByClassName("item-cd-category-panel")[0];
+    cdCategoryPanel.appendChild(category);
+
+    // update local storage
+    var parentId = source.id;
+    updateSubjectLocalStorage(parentId, title, color);
+
+    // Refresh filters
+    enableFilter();
+
+    // Update count of the category being dropped
+    increaseCounts(target);
+}
+
+// Remove a EAT subject from localStorage
+function removeSubjectLocalStorage(parentId, title, color) {
+    var subjectList = JSON.parse(localStorage.getItem(SUBJECT_PREFIX + parentId));
+    var index = subjectList.indexOf(title + DELIMITER + color);
+    subjectList.splice(index, 1);
+    localStorage.setItem(SUBJECT_PREFIX + parentId, JSON.stringify(subjectList));
+}
+
+// Update a EAT subject in localStorage
+function updateSubjectLocalStorage(parentId, title, color) {
+    var subject = localStorage.getItem(SUBJECT_PREFIX + parentId);
+    if (subject === null) {
+        // Subject key doesn't exist. Add a new key and update its value
+        localStorage.setItem(SUBJECT_PREFIX + parentId, JSON.stringify([title + DELIMITER + color]));
+    } else {
+        // Subject key exists. Update its value.
+        if (subject.indexOf(title + DELIMITER + color) >= 0) {
+            return;
+        }
+        subject = JSON.parse(subject);
+        subject.push(title + DELIMITER + color);
+        localStorage.setItem(SUBJECT_PREFIX + parentId,  JSON.stringify(subject));
+    }
+}
+
+// Update a EAT cd category in localStorage
+function updateCDCategoryLocalStorage(title, description, color, onoffSwitch) {
+    // Here we don't need to check whether or not category key exist.
+    // we overwrite existing entries as long as this function is called.
+    localStorage.setItem(CATEGORY_PREFIX + title,
+        JSON.stringify(description + DELIMITER + color + DELIMITER + onoffSwitch));
+}
+
+// Handler function for the "Update" button in "Create New Category" window.
+function editCategoryHandler (color, title, description, hotkey, headerElement, descriptionElement) {
+    // Get the parent container element
+    var container = document.getElementById("cdCategoriesContainerItems");
+
+    // Check title to see if it contains commas.
+    if (title.indexOf(",") >= 0) {
+        return false;
+    }
+
+    // Check title doesn't already exist before updating it.
+    var containerChildNodes = container.childNodes;
+    for (var i = 0; i < containerChildNodes.length; i++) {
+        if (containerChildNodes[i] === headerElement) {
+            continue;
+        }
+
+        var subNodes = containerChildNodes[i].childNodes;
+        for (var j = 0; j < subNodes.length; j++) {
+            if (subNodes[j].className === "header-title") {
+                if (subNodes[j].innerHTML === title) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    // Hotkey must be unique.
+    var hotkeyElements = document.getElementsByClassName("hotkey-circle");
+    for (var i = 0; i < hotkeyElements.length; i++) {
+        if (hotkeyElements[i].parentNode === headerElement) {
+            continue;
+        }
+
+        if (hotkeyElements[i].innerHTML === hotkey) {
+            return false;
+        }
+    }
+
+    // Retrieve old values
+    var oldTitle = headerElement.getElementsByClassName("header-title")[0].innerHTML;
+    var oldColor = rgbToHex(headerElement.getElementsByClassName("color-square")[0].style.backgroundColor);
+    var onoffSwitch = headerElement.getElementsByClassName("onoffswitch-checkbox")[0].checked;
+
+    // Update the cd category entry in local storage
+    var oldCDCategoryKey = CATEGORY_PREFIX + oldTitle;
+    var newCDCategoryKey = CATEGORY_PREFIX + title;
+    var newCDCategoryValue = description + DELIMITER + color + DELIMITER + onoffSwitch;
+    localStorage.removeItem(oldCDCategoryKey);
+    localStorage.setItem(newCDCategoryKey, JSON.stringify(newCDCategoryValue));
+
+    // Update cd category UI
+    headerElement.getElementsByClassName("header-title")[0].innerHTML = title;
+    headerElement.getElementsByClassName("color-square")[0].style.backgroundColor = color;
+    headerElement.getElementsByClassName("hotkey-circle")[0].innerHTML = hotkey
+    descriptionElement.innerHTML = description;
+
+    // Update subject entries in local storage and the corresponding subject UI
+    var oldSubjectValue = oldTitle + DELIMITER + oldColor;
+    var newSubjectValue = title + DELIMITER + color;
+    var keys = Object.keys(localStorage);
+    for (var i = 0; i < keys.length; i++) {
+        if (keys[i].indexOf(SUBJECT_PREFIX) >= 0) {
+            var subjectList = JSON.parse(localStorage.getItem(keys[i]));
+            var index = subjectList.indexOf(oldSubjectValue);
+            if (index >= 0) {
+                subjectList[index] = newSubjectValue;
+                localStorage.setItem(keys[i], JSON.stringify(subjectList));
+
+                var parent = document.getElementById(keys[i].replace(SUBJECT_PREFIX, ""));
+                var categoryDropped = parent.getElementsByClassName("category-dropped");
+                for (var j = 0; j < categoryDropped.length; j++) {
+                    if (categoryDropped[j].title === oldTitle) {
+                        categoryDropped[j].title = title;
+                        categoryDropped[j].style.backgroundColor = color
+                    }
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+// Handler function for the "Edit" button/icon in the Class Categories container.
+function labelEditHandler (event, element) {
+    // Prevent the event from propagating to parent elements.
+    event.stopPropagation();
+
+    // de-highlight all items
+    var items = document.getElementsByClassName("item");
+    for (var i = 0; i < items.length; i++) {
+        dehighlightItem(items[i]);
+    }
+
+    var parent = element.parentNode.parentNode;
+    var title = parent.getElementsByClassName("header-title")[0].innerHTML;
+    if (title === "unlabeled") {
+        return alert("This is a default category, which cannot be edited.")
+    }
+    var description = parent.nextSibling;
+    var hotkey = parent.getElementsByClassName("hotkey-circle")[0].innerHTML;
+    categoryWindow(parent, description, "edit");
+}
+
+// Handler function for the "Trash" button/icon in the Class Categories container.
+function labelTrashHandler (event, element) {
+    // Prevent the event from propagating to parent elements.
+    event.stopPropagation();
+
+    // de-highlight all items
+    var items = document.getElementsByClassName("item");
+    for (var i = 0; i < items.length; i++) {
+        dehighlightItem(items[i]);
+    }
+
+    var category = element.parentNode.parentNode;
+    var title = category.getElementsByClassName("header-title")[0].innerHTML;
+    if (title === "unlabeled") {
+        return alert("This is a default category, which cannot be removed.")
+    }
+
+    var count = category.getElementsByClassName("header-count")[0].innerHTML;
+    var color = rgbToHex(category.getElementsByClassName("color-square")[0].style.backgroundColor);
+    var description = category.nextSibling;
+    var container = category.parentNode;
+    var shouldRemove = confirm("CAUTION: this action will remove the selected cd category, and all " +
+        "entries it has been used to tag.");
+
+    if (shouldRemove) {
+        // Remove UI from cd category container
+        container.removeChild(category);
+        container.removeChild(description);
+        jQuery(container).accordion("refresh");
+
+        // Remove the cd category entry in local storage
+        localStorage.removeItem(CATEGORY_PREFIX + title);
+
+        // Remove UI from subject container and the corresponding subject entries in local storage
+        var subjectContainers = document.getElementsByClassName("item");
+        for (var i = 0; i < subjectContainers.length; i++) {
+            var categoryDropped = subjectContainers[i].getElementsByClassName("category-dropped");
+            for (var j = 0; j < categoryDropped.length; j++) {
+                if (categoryDropped[j].title === title) {
+                    // Remove UI  TODO: needs modifications
+                    subjectContainers[i].getElementsByClassName("item-cd-category-panel")[0]
+                        .removeChild(categoryDropped[j]);
+
+                    // Remove entries in local storage
+                    var subjectList = JSON.parse(localStorage.getItem(SUBJECT_PREFIX +
+                        subjectContainers[i].id));
+                    var index = subjectList.indexOf(title + DELIMITER + color);
+                    if (index > 0) {
+                        subjectList.splice(index, 1);
+                        localStorage.setItem(SUBJECT_PREFIX + subjectContainers[i].id,
+                            JSON.stringify(subjectList));
+                    }
+                }
+            }
+        }
+
+        var unlabeledCount = 0;
+        var unlabeledCountElement = document.getElementById("unlabeledCount");
+        var keys = Object.keys(localStorage);
+        for (var i = 0; i < keys.length; i++) {
+            if (keys[i].indexOf(SUBJECT_PREFIX) >= 0) {
+                var subjectList = JSON.parse(localStorage.getItem(keys[i]));
+                if (subjectList.length === 1) {
+                    unlabeledCount++;
+                }
+            }
+        }
+        unlabeledCountElement.innerHTML = unlabeledCount;
+    }
+}
+
+// Handler function for the "on/off" toggle buttion in the Class Categories container.
+function onoffSwitchHandler (event) {
+    // Prevent the event from propagating to parent elements.
+    event.stopPropagation();
+
+    // de-highlight all items
+    var items = document.getElementsByClassName("item");
+    for (var i = 0; i < items.length; i++) {
+        dehighlightItem(items[i]);
+    }
+
+    // Because of Jquery UI accordion's click event on the entire DIV, this onoff-switch event will be
+    // triggered twice if the onoff-switch button is clicked. We only want to response to the event triggered
+    // by the click of the checkbox.
+    if (event.srcElement.className !== "onoffswitch-checkbox") {
+        return;
+    }
+
+    // Update the state of the cd category entry in local storage
+    var parent = event.srcElement.parentNode.parentNode.parentNode;
+    var title = parent.getElementsByClassName("header-title")[0].innerHTML;
+    var onoffSwitch = parent.getElementsByClassName("onoffswitch-checkbox")[0].checked;
+    var cdCategory = JSON.parse(localStorage.getItem(CATEGORY_PREFIX + title));
+    var tokens = cdCategory.split(DELIMITER);
+    var updatedCDCategory = tokens[0] + DELIMITER + tokens[1] + DELIMITER + onoffSwitch;
+    localStorage.setItem(CATEGORY_PREFIX + title, JSON.stringify(updatedCDCategory));
+    enableFilter();
+}
+
+// Handler function for the master "on" control of all "on/off" toggle buttons in the Class Categories container
+function onSwitchHandler (event) {
+    var toggleBtns = document.getElementsByClassName("onoffswitch");
+
+    for (var i = 0; i < toggleBtns.length; i++) {
+        var parent = toggleBtns[i].parentNode.parentNode;
+        var title = parent.getElementsByClassName("header-title")[0].innerHTML;
+        var onoffSwitch = parent.getElementsByClassName("onoffswitch-checkbox")[0].checked;
+        if (onoffSwitch === false) {
+            // turn on the "on/off" toggle button
+            parent.getElementsByClassName("onoffswitch-checkbox")[0].checked = true;
+            onoffSwitch = true;
+
+            // update the state in local storage
+            var cdCategory = JSON.parse(localStorage.getItem(CATEGORY_PREFIX + title));
+            var tokens = cdCategory.split(DELIMITER);
+            var updatedCDCategory = tokens[0] + DELIMITER + tokens[1] + DELIMITER + onoffSwitch;
+            localStorage.setItem(CATEGORY_PREFIX + title, JSON.stringify(updatedCDCategory));
+        }
+    }
+
+    enableFilter()
+}
+
+// Handler function for the master "off" control of all "on/off" toggle buttons in the Class Categories
+// container
+function offSwitchHandler (event) {
+    var toggleBtns = document.getElementsByClassName("onoffswitch");
+
+    for (var i = 0; i < toggleBtns.length; i++) {
+        var parent = toggleBtns[i].parentNode.parentNode;
+        var title = parent.getElementsByClassName("header-title")[0].innerHTML;
+        var onoffSwitch = parent.getElementsByClassName("onoffswitch-checkbox")[0].checked;
+        if (onoffSwitch === true) {
+            // turn off the "on/off" toggle button
+            parent.getElementsByClassName("onoffswitch-checkbox")[0].checked = false;
+            onoffSwitch = false;
+
+            // update the state in local storage
+            var cdCategory = JSON.parse(localStorage.getItem(CATEGORY_PREFIX + title));
+            var tokens = cdCategory.split(DELIMITER);
+            var updatedCDCategory = tokens[0] + DELIMITER + tokens[1] + DELIMITER + onoffSwitch;
+            localStorage.setItem(CATEGORY_PREFIX + title, JSON.stringify(updatedCDCategory));
+        }
+    }
+
+    enableFilter()
+}
+
+// Enable filter capability for cd categories.
+function enableFilter () {
+    var localStorageKeys = Object.keys(localStorage);
+    var conditionDict = {};
+    var idList = [];
+    var titleList = [];
+    for (var i = 0; i < localStorageKeys.length; i++) {
+        // Format subject entries in local storage such that the data structure becomes easier to use when
+        // applying filters.
+        if (localStorageKeys[i].indexOf(SUBJECT_PREFIX) >= 0) {
+            idList.push(localStorageKeys[i].replace(SUBJECT_PREFIX, ""));
+            var subjectList = JSON.parse(localStorage.getItem(localStorageKeys[i]));
+            var l = [];
+            for (var j = 0; j < subjectList.length; j++) {
+                var title = subjectList[j].split(DELIMITER)[0];
+                if (title === "unlabeled") {
+                    continue;
+                }
+                l.push(title);
+            }
+            titleList.push(l);
+            continue;
+        }
+
+        // Format cd category entries in local storage such that the data structure becomes easier to use
+        // when applying filters.
+        if (localStorageKeys[i].indexOf(CATEGORY_PREFIX) >= 0) {
+            var onoffSwitch = JSON.parse(localStorage.getItem(localStorageKeys[i])).split(DELIMITER)[2];
+            conditionDict[localStorageKeys[i].replace(CATEGORY_PREFIX, "")] = onoffSwitch == "true";
+            continue;
+        }
+    }
+
+    // Apply filters.
+    for (var i = 0; i < idList.length; i++) {
+        var subjectContainer = document.getElementById(idList[i]);
+        if (titleList[i].length == 0) {
+            if (conditionDict["unlabeled"]) {
+                jQuery(subjectContainer).css({"visibility": "visible", "display": "block"});
+            } else {
+                jQuery(subjectContainer).css({"visibility": "hidden", "display": "none"});
+            }
+        } else {
+            var shouldDisplay = conditionDict[titleList[i][0]];
+            for (var j = 1; j < titleList[i].length; j++) {
+                shouldDisplay = shouldDisplay || conditionDict[titleList[i][j]] == true ? true : false;
+            }
+            if (shouldDisplay) {
+                jQuery(subjectContainer).css({"visibility": "visible", "display": "block"});
+            } else {
+                jQuery(subjectContainer).css({"visibility": "hidden", "display": "none"});
+            }
+        }
+    }
+
+    // Refresh layout
+    layoutManager.layout();
+}
+
+// Function to increase "Counts" in the Class Categiries container
+function increaseCounts (target) {
+    // Firstly, update count of unlabeled cd category
+    var unlabeledCount = 0;
+    var unlabeledCountElement = document.getElementById("unlabeledCount");
+    var keys = Object.keys(localStorage);
+    for (var i = 0; i < keys.length; i++) {
+        if (keys[i].indexOf(SUBJECT_PREFIX) >= 0) {
+            var subjectList = JSON.parse(localStorage.getItem(keys[i]));
+            if (subjectList.length === 1) {
+                unlabeledCount++;
+            }
+        }
+    }
+    unlabeledCountElement.innerHTML = unlabeledCount;
+    // If the target element is not undefined, increase its count.
+    if (target !== undefined) {
+        var title = target.getElementsByClassName("header-title")[0].innerHTML;
+        var color = rgbToHex(target.getElementsByClassName("color-square")[0].style.backgroundColor);
+        var value = title + DELIMITER + color;
+        var targetCount = 0;
+        var keys = Object.keys(localStorage);
+        for (var i = 0; i < keys.length; i++) {
+            if (keys[i].indexOf(SUBJECT_PREFIX) >= 0) {
+                var subjectList = JSON.parse(localStorage.getItem(keys[i]));
+                if (subjectList.indexOf(value) >= 0) {
+                    targetCount++;
+                }
+            }
+        }
+        target.getElementsByClassName("header-count")[0].innerHTML = targetCount;
+    }
+}
+
+// Function to decrease "Counts" in the Class Categiries container
+function decreaseCounts (category) {
+    // Firstly, update count of unlabeled cd category
+    var unlabeledCount = 0;
+    var unlabeledCountElement = document.getElementById("unlabeledCount");
+    var keys = Object.keys(localStorage);
+    for (var i = 0; i < keys.length; i++) {
+        if (keys[i].indexOf(SUBJECT_PREFIX) >= 0) {
+            var subjectList = JSON.parse(localStorage.getItem(keys[i]));
+            if (subjectList.length === 1) {
+                unlabeledCount++;
+            }
+        }
+    }
+    unlabeledCountElement.innerHTML = unlabeledCount;
+    // Update corresponding cd category count
+    var title = category.title;
+    var labelHeaderElements = document.getElementsByClassName("cd-categories-container-header");
+    for (var i = 0; i < labelHeaderElements.length; i++) {
+        var titleText = labelHeaderElements[i].getElementsByClassName("header-title")[0].innerHTML;
+        if (titleText === title) {
+            var targetCount = parseInt(labelHeaderElements[i].getElementsByClassName("header-count")[0]
+                .innerHTML);
+            targetCount--;
+            labelHeaderElements[i].getElementsByClassName("header-count")[0].innerHTML = targetCount;
+        }
+    }
+}
+
+// Handler function for the button "Export CSV"
+function exportCSV (outFile) {
+    // de-highlight all items
+    var items = document.getElementsByClassName("item");
+    for (var i = 0; i < items.length; i++) {
+        dehighlightItem(items[i]);
+    }
+
+    var keys = Object.keys(localStorage);
+    var csvContent = "";
+    for (var i = 0; i < keys.length; i++) {
+        if (keys[i].indexOf(SUBJECT_PREFIX) >= 0) {
+            var subjectList = JSON.parse(localStorage.getItem(keys[i]));
+            var containerId = keys[i].replace(SUBJECT_PREFIX, "");
+            var containerElement = document.getElementById(containerId);
+            var imageName = containerElement.childNodes[1].textContent;
+            for (var j = 1; j < subjectList.length; j++) {
+                var title = subjectList[j].split(DELIMITER)[0];
+                var entry = imageName + "," + title + "\n";
+                csvContent += entry;
+            }
+        }
+    }
+    var blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+    var link = document.createElement('a');
+    if (link.download !== undefined) {
+        var url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", outFile);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        return alert('Your browser does not support HTML5 download. Please ' +
+            'upgrade your browser to a recent version.');
+    }
+}
+
+// Handler function for the button "Reset All"
+function resetAllHandler() {
+    // de-highlight all items
+    var items = document.getElementsByClassName("item");
+    for (var i = 0; i < items.length; i++) {
+        dehighlightItem(items[i]);
+    }
+
+    var doRest = confirm("Clear all HTML and local storage entries added by this tool. Local storage entries " +
+        "added by other tools will not be affected. Note this action can NOT be undone. Click OK to proceed, " +
+        "and click Cancel to cancel this action.");
+
+    if (doRest) {
+        // Remove localStorage entries
+        var localStorageKeys = Object.keys(localStorage);
+        for (var i = 0; i < localStorageKeys.length; i++) {
+            if (localStorageKeys[i].indexOf(CATEGORY_PREFIX) >= 0 &&
+                localStorageKeys[i].indexOf("unlabeled") < 0) {
+                // Remove cd category entries. The "unlabeled" entry
+                // won't be removed.
+                localStorage.removeItem(localStorageKeys[i]);
+                continue;
+            }
+            if (localStorageKeys[i].indexOf(SUBJECT_PREFIX) >= 0) {
+                // Reset subject local storage.
+                var subjectValue = JSON.parse(localStorage.getItem(localStorageKeys[i]))[0];
+                localStorage.setItem(localStorageKeys[i],
+                    JSON.stringify([subjectValue]));
+            }
+        }
+
+        // Remove UI elements.
+        removeAllUI();
+    }
+}
+
+// Function to remove all added UI elements.
+function removeAllUI () {
+    // Remove UI from all subject containers
+    jQuery(".category-dropped").remove();
+
+    // Remove UI from cd category container
+    var labelItemsContainer = document.getElementById("cdCategoriesContainerItems");
+    while (labelItemsContainer.firstChild.className !== undefined &&
+    labelItemsContainer.firstChild.className.indexOf("group") >= 0) {
+        labelItemsContainer.removeChild(labelItemsContainer.firstChild.nextSibling);
+        labelItemsContainer.removeChild(labelItemsContainer.firstChild);
+    }
+
+    // update unlabeled cd category UI
+    increaseCounts(undefined);
+    if (document.getElementById("switch_unlabeled").checked === false) {
+        document.getElementById("switch_unlabeled").click();
+    }
+
+    // de-highlight all items
+    var items = document.getElementsByClassName("item");
+    for (var i = 0; i < items.length; i++) {
+        dehighlightItem(items[i]);
+    }
+}
+</script>
+</head>
+<body onload="verify_environment()">
+<div class="main-container">
+    <div class="main-container-title">
+        <span class="main-container-title-span">Class Discovery Tool</span>
+    </div>
+    <div class="main-container-toolbar">
+        <input class="btn" type="button" value="Export CSV" onclick="exportCSV('cd-analysis-results.csv')"/>
+        <input class="btn" type="button" value="Reset All" onclick="resetAllHandler()"/>
+    </div>
+    <div class="main-container-display">
+
+    #for $subject in $subjects
+        #set image_id = $subject.get_id()
+        #set container_id = $image_id.split('.')[0]
+
+        <div class="item" id="$container_id" tabindex="0">
+            <span class="item-name">$image_id</span>
+            <img class="item-image" src="$sub_dir/$image_id"/>
+            <div class="item-metadata-panel"></div>
+            <div class="item-cd-category-panel"></div>
+        </div>
+        <script type="text/javascript">
+            updateSubjectLocalStorage('$container_id', 'unlabeled', 'gray');
+        </script>
+    #end for
+
+    </div>
+</div>
+<div class="cd-categories-container">
+    <div class="cd-categories-container-title">
+        <span class="text" style="position: absolute;margin: 7px 0px 0px 7px"><b>Class Categories</b></span>
+        <span class="text" style="position: absolute; margin: 3px 0px 0px 190px;">
+            <input class="btn" type="button" value="Turn on all" style="padding: 2px 10px 2px 10px; font-size: 11px;"
+                   onclick="onSwitchHandler(event)">
+            <input class="btn" type="button" value="Turn off all" style="padding: 2px 10px 2px 10px; font-size: 11px;"
+                   onclick="offSwitchHandler(event)">
+        </span>
+    </div>
+    <div class="cd-categories-container-items" id="cdCategoriesContainerItems">
+        <h5 class="cd-categories-container-header">
+            <div class="color-square"></div>
+            <div class="hotkey-circle"></div>
+            <div class="header-title">unlabeled</div>
+            <div class="header-option-trash">
+                <i class="fa fa-trash" aria-hidden="true" style="font-size: 18px;"
+                   onclick="labelTrashHandler(event, this)"></i>
+            </div>
+            <div class="header-option-edit">
+                <i class="fa fa-pencil-square-o" aria-hidden="true" style="font-size: 18px;"
+                   onclick="labelEditHandler(event, this)"></i>
+            </div>
+            <div class="header-onoffswitch">
+                <div class="onoffswitch" onclick="onoffSwitchHandler(event)">
+                    <input type="checkbox" name="onoff_unlabeled" class="onoffswitch-checkbox" id="switch_unlabeled"
+                           checked>
+                    <label class="onoffswitch-label" for="switch_unlabeled">
+                        <span class="onoffswitch-inner"></span>
+                        <span class="onoffswitch-switch"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="header-count" id="unlabeledCount"></div>
+        </h5>
+        <div class="cd-categories-description">
+            This is the default unlabeled category, and it is <b>not</b> draggable.
+        </div>
+        <script type="text/javascript">
+            updateCDCategoryLocalStorage('unlabeled', 'This is the default unlabeled category, and it is not ' +
+                'draggable.', 'gray', true);
+        </script>
+    </div>
+    <div class="cd-categories-toolbar">
+        <input class="btn" type="button" value="New Category" onclick="categoryWindow(undefined, undefined, 'add')"
+               style="position: absolute; top: 10px;"/>
+    </div>
+</div>
+</body>
+</html>
