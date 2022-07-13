@@ -3,7 +3,7 @@
 #
 # Steven Lu 4/20/2018
 
-from record import Record
+from .record import Record
 
 class Subject:
     def __init__(self, subject_id, filename):
@@ -38,8 +38,8 @@ class Subject:
         # check duplicate record.
         for record in self._records:
             if record.get_classification_id() == classification_id:
-                print 'Duplicate record found. Classification id is %s. Skip ' \
-                      'the duplicate record.' % classification_id
+                print('Duplicate record found. Classification id is %s. Skip ' \
+                      'the duplicate record.' % classification_id)
                 return True
 
         return False
