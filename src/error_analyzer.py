@@ -15,29 +15,28 @@ from parser.ea_csv_parser import EACSVParser
 from collection.ambiguous_collection import AmbiguousCollection
 from html_builder.error_html_builder import ErrorHTMLBuilder
 
-
 def main(image_dir, label_file, preds_file, template_dir, out_dir,
          classmap_file=None, num=-1):
     # Check arguments up front
     if not os.path.isdir(image_dir):
-        print '[ERROR] Could not find image directory %s' % image_dir
+        print('[ERROR] Could not find image directory %s' % image_dir)
         sys.exit(1)
 
     if not os.path.exists(label_file):
-        print '[ERROR] Could not find label file %s' % label_file
+        print('[ERROR] Could not find label file %s' % label_file)
         sys.exit(1)
 
     if not os.path.exists(preds_file):
-        print '[ERROR] Could not find prediction file %s' % preds_file
+        print('[ERROR] Could not find prediction file %s' % preds_file)
 
     # If output directory doesn't exist, create it.
     if not os.path.isdir(out_dir):
-        print 'Creating output directory %s' % out_dir
+        print('Creating output directory %s' % out_dir)
         os.mkdir(out_dir)
 
     # If classmap file is provided, then make sure it exists.
     if classmap_file is not None and not os.path.isfile(classmap_file):
-        print '[ERROR] Could not find classmap file %s' % classmap_file
+        print('[ERROR] Could not find classmap file %s' % classmap_file)
         sys.exit(1)
 
     ea_parser = EACSVParser(label_file, preds_file, classmap_file)
@@ -56,10 +55,10 @@ def main(image_dir, label_file, preds_file, template_dir, out_dir,
         random.shuffle(subjects)
         ea_collection.set_subjects(subjects[:num])
     else:
-        print '[WARNING] The --num specified in the command line is either ' \
+        print('[WARNING] The --num specified in the command line is either ' \
               'smaller than or equal to 0, or greater than the number of ' \
               'items in the collection. All the items will be used for error ' \
-              'analysis.'
+              'analysis.')
 
     # Build a static HTML page to further analyze mis-labeled images
     ea_collection.build_html(html_builder)

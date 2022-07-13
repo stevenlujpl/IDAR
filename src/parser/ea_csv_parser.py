@@ -99,8 +99,8 @@ class EACSVParser:
             # The orders of the items in the label and prediction files are 
             # expected to be the same.
             if l_tokens[0] != p_tokens[0]:
-                print '[ERROR] The orders of the items in the label and ' \
-                      'prediction files are different.'
+                print('[ERROR] The orders of the items in the label and ' \
+                      'prediction files are different.')
                 sys.exit(1)
 
             id = l_tokens[0]

@@ -40,18 +40,18 @@ class LandmarksHTMLBuilder(object):
     def build(self, subjects):
         template_file = '%s/%s' % (os.path.abspath(self._template_dir),
                                    self._template_name)
-        print 'Building an HTML page %s/%s' % \
-              (os.path.abspath(self._out_dir), self._html_name)
-        print 'Template file: %s' % os.path.abspath(template_file)
+        print('Building an HTML page %s/%s' % \
+              (os.path.abspath(self._out_dir), self._html_name))
+        print('Template file: %s' % os.path.abspath(template_file))
 
         if not os.path.isfile(template_file):
-            print '%s template file does not exist. Cannot build HTML page ' \
-                  'for analyzing ambiguous subjects.'
+            print('%s template file does not exist. Cannot build HTML page ' \
+                  'for analyzing ambiguous subjects.')
             return
 
         # if output directory doesn't exist, create it.
         if not os.path.isdir(self._out_dir):
-            print 'Create output directory %s' % self._out_dir
+            print('Create output directory %s' % self._out_dir)
             try:
                 os.makedirs(self._out_dir)
             except OSError:
@@ -75,12 +75,12 @@ class LandmarksHTMLBuilder(object):
 
         # copy the ambiguous subjects from image_dir to a sub directory in
         # output_dir.
-        print 'Copying subjects from input to output directory.'
+        print('Copying subjects from input to output directory.')
         for subject in subjects:
             file_path = '%s/%s' % (self._image_dir, subject.get_filename())
             if not os.path.isfile(file_path):
-                print 'Failed copying subject %s because it does not exist in ' \
-                      'image_dir.' % file_path
+                print('Failed copying subject %s because it does not exist in ' \
+                      'image_dir.' % file_path)
                 continue
             copyfile(file_path, '%s/%s/%s' % (self._out_dir, self._sub_dir,
                                               subject.get_filename()))
